@@ -1,0 +1,4 @@
+enum SourceType {
+  local,
+  remote,
+}
