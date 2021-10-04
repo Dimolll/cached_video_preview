@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
         body: Column(
           children: <Widget>[
             Expanded(
-              child: CachedVideoPreview(
+              child: CachedVideoPreviewWidget(
                 path: 'https://www.youtube.com/watch?v=b_sQ9bMltGU',
                 type: SourceType.remote,
                 remoteImageBuilder: (BuildContext context, url) =>
@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: CachedVideoPreview(
+              child: CachedVideoPreviewWidget(
                 path:
                     'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
                 type: SourceType.remote,
@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
               child: FutureBuilder<File>(
                 future: _loadVideoFileFromAsset(),
                 builder: (_, snapshot) => snapshot.hasData
-                    ? CachedVideoPreview(
+                    ? CachedVideoPreviewWidget(
                         path: snapshot.requireData.path,
                         type: SourceType.local,
                         fileImageBuilder: (context, bytes) =>

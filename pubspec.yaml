@@ -1,6 +1,6 @@
 name: cached_video_preview
 description: Flutter plugin that can help you get remote or local video preview image and cache it.
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/Dimolll/cached_video_preview
 
 environment:

@@ -12,8 +12,8 @@ typedef RemoteImageBuilder = Widget Function(BuildContext, String);
 /// File Image Builder typedef
 typedef FileImageBuilder = Widget Function(BuildContext, Uint8List);
 
-class CachedVideoPreview extends StatefulWidget {
-  const CachedVideoPreview({
+class CachedVideoPreviewWidget extends StatefulWidget {
+  const CachedVideoPreviewWidget({
     Key? key,
     required this.path,
     this.type = SourceType.local,
@@ -45,10 +45,11 @@ class CachedVideoPreview extends StatefulWidget {
   final Duration fadeDuration;
 
   @override
-  _CachedVideoPreviewState createState() => _CachedVideoPreviewState();
+  _CachedVideoPreviewWidgetState createState() =>
+      _CachedVideoPreviewWidgetState();
 }
 
-class _CachedVideoPreviewState extends State<CachedVideoPreview>
+class _CachedVideoPreviewWidgetState extends State<CachedVideoPreviewWidget>
     with SingleTickerProviderStateMixin {
   late final StreamController<VideoPreviewData> _previewController;
   late final AnimationController _animation;

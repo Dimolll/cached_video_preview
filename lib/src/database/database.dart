@@ -40,14 +40,11 @@ class CachedVideoDatabase extends _$CachedVideoDatabase {
 
   Future<int> add(VideoEntity video) => into(videos).insert(video);
 
-  Future<VideoEntity?> getByName(String path) async {
-    final List<VideoEntity> result = await (select(videos)
-          ..where(($VideosTable tbl) => tbl.name.equals(path)))
-        .get();
+  Future<VideoEntity?> getByName(String path) =>
+      (select(videos)..where(($VideosTable tbl) => tbl.name.equals(path)))
+          .getSingleOrNull();
 
-    if (result.isEmpty) {
-      return null;
-    }
-    return result.first;
-  }
+  Stream<VideoEntity?> getByNameStream(String path) =>
+      (select(videos)..where(($VideosTable tbl) => tbl.name.equals(path)))
+          .watchSingleOrNull();
 }

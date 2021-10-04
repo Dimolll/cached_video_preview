@@ -17,79 +17,83 @@ class CachedVideoPreviewHelper {
   static CachedVideoPreviewHelper get instance =>
       _instance ??= CachedVideoPreviewHelper._();
 
-  final CachedVideoDatabase _db = CachedVideoDatabase();
+  static final CachedVideoDatabase _db = CachedVideoDatabase();
 
-  final Map<String, Stream<VideoPreviewData>> _fetchers =
-      <String, Stream<VideoPreviewData>>{};
+  final Set<String> _fetchers = <String>{};
 
   /// return [Stream<VideoPreviewData>] from parameters [path] and [source]
-  Stream<VideoPreviewData> load(String path, SourceType source) {
-    if (_fetchers.containsKey(path)) {
-      return _fetchers[path]!;
+  Stream<VideoPreviewData> load(String path, SourceType source) async* {
+    final fromDbValue = await _db.getByName(path);
+    if (fromDbValue != null) {
+      yield fromDbValue.toPreview;
+    } else {
+      _execute(path, source);
+      yield* _db
+          .getByNameStream(path)
+          .where((event) => event != null)
+          .map((event) => event!.toPreview);
     }
-    final Stream<VideoPreviewData> stream =
-        _db.getByName(path).asStream().asyncMap<VideoPreviewData>(
-      (VideoEntity? event) {
-        if (event != null) {
-          return event.imageUrl.isNotEmpty
-              ? VideoPreviewData.remote(event.imageUrl)
-              : VideoPreviewData.local(event.file);
-        }
-        return _loadAndSave(path, source);
-      },
-    ).asBroadcastStream();
-    _fetchers[path] = stream;
-    return stream;
   }
 
-  Future<VideoPreviewData> _loadAndSave(String path, SourceType source) async {
-    late final VideoPreviewData data;
+  Future<void> _execute(String path, SourceType source) async {
+    if (!_fetchers.contains(path)) {
+      await _loadAndSave(path, source).then((value) async {
+        final res = await _db.add(value);
+        print(res);
+        _fetchers.remove(path);
+      }).catchError((e) {
+        print(path);
+        print(e);
+      });
+    }
+  }
+
+  static Future<VideoEntity> _loadAndSave(
+    String path,
+    SourceType source,
+  ) async {
     if (source == SourceType.local) {
-      final Uint8List? bytes = await _loadByThumbnail(path);
-      data = await _save(path, file: bytes).then(
-        (VideoEntity value) => value.imageUrl.isNotEmpty
-            ? VideoPreviewData.remote(value.imageUrl)
-            : VideoPreviewData.local(value.file),
-      );
+      try {
+        final Uint8List? bytes = await _loadByThumbnail(path);
+        return _getVideoEntity(path, file: bytes);
+      } catch (e) {
+        print(e);
+        rethrow;
+      }
     } else {
       final String imageUrl = await _loadRemoteMetadata(path);
       Uint8List? bytes;
       if (imageUrl.isEmpty) {
         bytes = await _loadByThumbnail(path);
       }
-      data = await _save(path, file: bytes, url: imageUrl).then(
-        (VideoEntity value) => value.imageUrl.isNotEmpty
-            ? VideoPreviewData.remote(value.imageUrl)
-            : VideoPreviewData.local(value.file),
-      );
+      return _getVideoEntity(path, file: bytes, url: imageUrl);
     }
-
-    return data;
   }
 
-  Future<String> _loadRemoteMetadata(String path) async {
-    final Completer<String> complater = Completer<String>();
-    complater.complete(MetadataFetch.extract(path)
-        .then((Metadata? value) => value?.image ?? ''));
-    return complater.future;
-  }
+  static Future<String> _loadRemoteMetadata(String path) =>
+      MetadataFetch.extract(path).then((Metadata? value) => value?.image ?? '');
 
-  Future<Uint8List?> _loadByThumbnail(String path) {
-    final Completer<Uint8List?> complater = Completer<Uint8List?>();
-    complater.complete(VideoThumbnail.thumbnailData(
-      video: path,
-      imageFormat: ImageFormat.JPEG,
-      quality: 75,
-    ));
-    return complater.future;
-  }
+  static Future<Uint8List?> _loadByThumbnail(String path) =>
+      VideoThumbnail.thumbnailData(
+        video: path,
+        imageFormat: ImageFormat.JPEG,
+        quality: 75,
+      );
 
-  Future<VideoEntity> _save(String name, {Uint8List? file, String url = ''}) {
-    final VideoEntity entity = VideoEntity(
-      name: name,
-      imageUrl: url,
-      file: file ?? Uint8List.fromList(<int>[]),
-    );
-    return _db.add(entity).then((_) => entity);
-  }
+  static VideoEntity _getVideoEntity(
+    String name, {
+    Uint8List? file,
+    String url = '',
+  }) =>
+      VideoEntity(
+        name: name,
+        imageUrl: url,
+        file: file ?? Uint8List.fromList(<int>[]),
+      );
+}
+
+extension Mapper on VideoEntity {
+  VideoPreviewData get toPreview => imageUrl.isNotEmpty
+      ? VideoPreviewData.remote(imageUrl)
+      : VideoPreviewData.local(file);
 }
