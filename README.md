@@ -23,6 +23,7 @@ CachedVideoPreview(
 CachedVideoPreview(
   path: 'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
   type: SourceType.remote,
+  httpHeaders: const <String, String>{},
   remoteImageBuilder: (BuildContext context, url) =>
       Image.network(url),
 )

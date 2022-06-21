@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:cached_video_preview/cached_video_preview.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +35,8 @@ class MyApp extends StatelessWidget {
                 type: SourceType.remote,
                 remoteImageBuilder: (BuildContext context, url) =>
                     Image.network(url),
+                // Add custom Http Headers,
+                httpHeaders: const <String, String>{},
               ),
             ),
             Expanded(

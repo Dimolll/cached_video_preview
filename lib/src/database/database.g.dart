@@ -77,8 +77,7 @@ class VideoEntity extends DataClass implements Insertable<VideoEntity> {
   }
 
   @override
-  int get hashCode =>
-      $mrjf($mrjc(name.hashCode, $mrjc(imageUrl.hashCode, file.hashCode)));
+  int get hashCode => Object.hash(name, imageUrl, file);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -156,17 +155,20 @@ class $VideosTable extends Videos with TableInfo<$VideosTable, VideoEntity> {
   final String? _alias;
   $VideosTable(this._db, [this._alias]);
   final VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
   late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
       'name', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true);
+      type: const StringType(), requiredDuringInsert: true);
   final VerificationMeta _imageUrlMeta = const VerificationMeta('imageUrl');
+  @override
   late final GeneratedColumn<String?> imageUrl = GeneratedColumn<String?>(
       'image_url', aliasedName, false,
-      typeName: 'TEXT', requiredDuringInsert: true);
+      type: const StringType(), requiredDuringInsert: true);
   final VerificationMeta _fileMeta = const VerificationMeta('file');
+  @override
   late final GeneratedColumn<Uint8List?> file = GeneratedColumn<Uint8List?>(
       'file', aliasedName, false,
-      typeName: 'BLOB', requiredDuringInsert: true);
+      type: const BlobType(), requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [name, imageUrl, file];
   @override

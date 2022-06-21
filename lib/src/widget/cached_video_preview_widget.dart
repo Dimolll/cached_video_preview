@@ -21,6 +21,7 @@ class CachedVideoPreviewWidget extends StatefulWidget {
     this.fileImageBuilder,
     this.placeHolder,
     this.fadeDuration = const Duration(milliseconds: 500),
+    this.httpHeaders = const <String, String>{},
   }) : super(key: key);
 
   /// Video path can be remote url or local file path
@@ -41,9 +42,10 @@ class CachedVideoPreviewWidget extends StatefulWidget {
   /// Use this [fadeDuration] if you want to
   /// ovverride [FadeTransition] duration.
   /// Default = [const Duration(milliseconds: 500)]
-
   final Duration fadeDuration;
 
+  /// HTTP headers for remote video request
+  final Map<String, String> httpHeaders;
   @override
   _CachedVideoPreviewWidgetState createState() =>
       _CachedVideoPreviewWidgetState();
@@ -62,8 +64,13 @@ class _CachedVideoPreviewWidgetState extends State<CachedVideoPreviewWidget>
       vsync: this,
       duration: widget.fadeDuration,
     );
-    _subs =
-        CachedVideoPreviewHelper.instance.load(widget.path, widget.type).listen(
+    _subs = CachedVideoPreviewHelper.instance
+        .load(
+      widget.path,
+      widget.type,
+      widget.httpHeaders,
+    )
+        .listen(
       (VideoPreviewData data) {
         _previewController.add(data);
         _animation.forward();

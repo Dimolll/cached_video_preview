@@ -22,12 +22,16 @@ class CachedVideoPreviewHelper {
   final Set<String> _fetchers = <String>{};
 
   /// return [Stream<VideoPreviewData>] from parameters [path] and [source]
-  Stream<VideoPreviewData> load(String path, SourceType source) async* {
+  Stream<VideoPreviewData> load(
+    String path,
+    SourceType source,
+    Map<String, String> headers,
+  ) async* {
     final fromDbValue = await _db.getByName(path);
     if (fromDbValue != null) {
       yield fromDbValue.toPreview;
     } else {
-      _execute(path, source);
+      _execute(path, source, headers);
       yield* _db
           .getByNameStream(path)
           .where((event) => event != null)
@@ -35,9 +39,13 @@ class CachedVideoPreviewHelper {
     }
   }
 
-  Future<void> _execute(String path, SourceType source) async {
+  Future<void> _execute(
+    String path,
+    SourceType source,
+    Map<String, String> headers,
+  ) async {
     if (!_fetchers.contains(path)) {
-      await _loadAndSave(path, source).then((value) async {
+      await _loadAndSave(path, source, headers).then((value) async {
         final res = await _db.add(value);
         print(res);
         _fetchers.remove(path);
@@ -51,10 +59,11 @@ class CachedVideoPreviewHelper {
   static Future<VideoEntity> _loadAndSave(
     String path,
     SourceType source,
+    Map<String, String> headers,
   ) async {
     if (source == SourceType.local) {
       try {
-        final Uint8List? bytes = await _loadByThumbnail(path);
+        final Uint8List? bytes = await _loadByThumbnail(path, headers);
         return _getVideoEntity(path, file: bytes);
       } catch (e) {
         print(e);
@@ -64,7 +73,7 @@ class CachedVideoPreviewHelper {
       final String imageUrl = await _loadRemoteMetadata(path);
       Uint8List? bytes;
       if (imageUrl.isEmpty) {
-        bytes = await _loadByThumbnail(path);
+        bytes = await _loadByThumbnail(path, headers);
       }
       return _getVideoEntity(path, file: bytes, url: imageUrl);
     }
@@ -73,11 +82,15 @@ class CachedVideoPreviewHelper {
   static Future<String> _loadRemoteMetadata(String path) =>
       MetadataFetch.extract(path).then((Metadata? value) => value?.image ?? '');
 
-  static Future<Uint8List?> _loadByThumbnail(String path) =>
+  static Future<Uint8List?> _loadByThumbnail(
+    String path,
+    Map<String, String> headers,
+  ) =>
       VideoThumbnail.thumbnailData(
         video: path,
         imageFormat: ImageFormat.JPEG,
         quality: 75,
+        headers: headers,
       );
 
   static VideoEntity _getVideoEntity(
