@@ -21,7 +21,7 @@ class CachedVideoPreviewWidget extends StatefulWidget {
     this.fileImageBuilder,
     this.placeHolder,
     this.fadeDuration = const Duration(milliseconds: 500),
-    this.httpHeaders = const <String, String>{},
+    this.httpHeaders,
   }) : super(key: key);
 
   /// Video path can be remote url or local file path
@@ -45,7 +45,8 @@ class CachedVideoPreviewWidget extends StatefulWidget {
   final Duration fadeDuration;
 
   /// HTTP headers for remote video request
-  final Map<String, String> httpHeaders;
+  final Map<String, String>? httpHeaders;
+
   @override
   _CachedVideoPreviewWidgetState createState() =>
       _CachedVideoPreviewWidgetState();

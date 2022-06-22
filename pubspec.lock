@@ -177,26 +177,19 @@ packages:
     source: hosted
     version: "2.2.1"
   drift:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: drift
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.6.0"
   drift_dev:
-    dependency: "direct dev"
+    dependency: transitive
     description:
       name: drift_dev
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.6.0"
-  drift_sqflite:
-    dependency: "direct main"
-    description:
-      name: drift_sqflite
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.0"
   fake_async:
     dependency: transitive
     description:
@@ -354,6 +347,27 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
+  moor:
+    dependency: "direct main"
+    description:
+      name: moor
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.6.1+1"
+  moor_flutter:
+    dependency: "direct main"
+    description:
+      name: moor_flutter
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.1.0"
+  moor_generator:
+    dependency: "direct dev"
+    description:
+      name: moor_generator
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.6.0+1"
   package_config:
     dependency: transitive
     description:

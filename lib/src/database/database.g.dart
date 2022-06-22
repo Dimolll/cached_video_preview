@@ -12,7 +12,8 @@ class VideoEntity extends DataClass implements Insertable<VideoEntity> {
   final String imageUrl;
   final Uint8List file;
   VideoEntity({required this.name, required this.imageUrl, required this.file});
-  factory VideoEntity.fromData(Map<String, dynamic> data, {String? prefix}) {
+  factory VideoEntity.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return VideoEntity(
       name: const StringType()
@@ -42,7 +43,7 @@ class VideoEntity extends DataClass implements Insertable<VideoEntity> {
 
   factory VideoEntity.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
+    serializer ??= moorRuntimeOptions.defaultSerializer;
     return VideoEntity(
       name: serializer.fromJson<String>(json['name']),
       imageUrl: serializer.fromJson<String>(json['imageUrl']),
@@ -51,7 +52,7 @@ class VideoEntity extends DataClass implements Insertable<VideoEntity> {
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
+    serializer ??= moorRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'name': serializer.toJson<String>(name),
       'imageUrl': serializer.toJson<String>(imageUrl),
@@ -205,7 +206,7 @@ class $VideosTable extends Videos with TableInfo<$VideosTable, VideoEntity> {
   Set<GeneratedColumn> get $primaryKey => {name, imageUrl, file};
   @override
   VideoEntity map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return VideoEntity.fromData(data,
+    return VideoEntity.fromData(data, attachedDatabase,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
@@ -223,12 +224,4 @@ abstract class _$CachedVideoDatabase extends GeneratedDatabase {
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [videos];
-}
-
-// **************************************************************************
-// DaoGenerator
-// **************************************************************************
-
-mixin _$VideosDaoMixin on DatabaseAccessor<CachedVideoDatabase> {
-  $VideosTable get videos => attachedDatabase.videos;
 }

@@ -25,13 +25,13 @@ class CachedVideoPreviewHelper {
   Stream<VideoPreviewData> load(
     String path,
     SourceType source,
-    Map<String, String> headers,
+    Map<String, String>? httpHeaders,
   ) async* {
     final fromDbValue = await _db.getByName(path);
     if (fromDbValue != null) {
       yield fromDbValue.toPreview;
     } else {
-      _execute(path, source, headers);
+      _execute(path, source, httpHeaders);
       yield* _db
           .getByNameStream(path)
           .where((event) => event != null)
@@ -42,10 +42,10 @@ class CachedVideoPreviewHelper {
   Future<void> _execute(
     String path,
     SourceType source,
-    Map<String, String> headers,
+    Map<String, String>? httpHeaders,
   ) async {
     if (!_fetchers.contains(path)) {
-      await _loadAndSave(path, source, headers).then((value) async {
+      await _loadAndSave(path, source, httpHeaders).then((value) async {
         final res = await _db.add(value);
         print(res);
         _fetchers.remove(path);
@@ -59,11 +59,11 @@ class CachedVideoPreviewHelper {
   static Future<VideoEntity> _loadAndSave(
     String path,
     SourceType source,
-    Map<String, String> headers,
+    Map<String, String>? httpHeaders,
   ) async {
     if (source == SourceType.local) {
       try {
-        final Uint8List? bytes = await _loadByThumbnail(path, headers);
+        final Uint8List? bytes = await _loadByThumbnail(path, httpHeaders);
         return _getVideoEntity(path, file: bytes);
       } catch (e) {
         print(e);
@@ -73,7 +73,7 @@ class CachedVideoPreviewHelper {
       final String imageUrl = await _loadRemoteMetadata(path);
       Uint8List? bytes;
       if (imageUrl.isEmpty) {
-        bytes = await _loadByThumbnail(path, headers);
+        bytes = await _loadByThumbnail(path, httpHeaders);
       }
       return _getVideoEntity(path, file: bytes, url: imageUrl);
     }
@@ -84,13 +84,13 @@ class CachedVideoPreviewHelper {
 
   static Future<Uint8List?> _loadByThumbnail(
     String path,
-    Map<String, String> headers,
+    Map<String, String>? httpHeaders,
   ) =>
       VideoThumbnail.thumbnailData(
         video: path,
         imageFormat: ImageFormat.JPEG,
         quality: 75,
-        headers: headers,
+        headers: httpHeaders,
       );
 
   static VideoEntity _getVideoEntity(
