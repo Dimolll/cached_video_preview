@@ -1,3 +1,6 @@
+## 1.0.3
+
+* Fix build issues
 ## 1.0.2
 
 * Add HTTP Headders

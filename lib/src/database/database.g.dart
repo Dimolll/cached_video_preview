@@ -6,7 +6,7 @@ part of 'database.dart';
 // MoorGenerator
 // **************************************************************************
 
-// ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
+// ignore_for_file: type=lint
 class VideoEntity extends DataClass implements Insertable<VideoEntity> {
   final String name;
   final String imageUrl;
@@ -151,9 +151,10 @@ class VideosCompanion extends UpdateCompanion<VideoEntity> {
 }
 
 class $VideosTable extends Videos with TableInfo<$VideosTable, VideoEntity> {
-  final GeneratedDatabase _db;
+  @override
+  final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $VideosTable(this._db, [this._alias]);
+  $VideosTable(this.attachedDatabase, [this._alias]);
   final VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
@@ -205,13 +206,13 @@ class $VideosTable extends Videos with TableInfo<$VideosTable, VideoEntity> {
   Set<GeneratedColumn> get $primaryKey => {name, imageUrl, file};
   @override
   VideoEntity map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return VideoEntity.fromData(data, _db,
+    return VideoEntity.fromData(data, attachedDatabase,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
   $VideosTable createAlias(String alias) {
-    return $VideosTable(_db, alias);
+    return $VideosTable(attachedDatabase, alias);
   }
 }
 
