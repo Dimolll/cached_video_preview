@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:moor_flutter/moor_flutter.dart';
+import 'package:drift_sqflite/drift_sqflite.dart';
+import 'package:drift/drift.dart';
 
 part 'database.g.dart';
 
@@ -18,17 +19,17 @@ class Videos extends Table {
       };
 }
 
-@UseDao(tables: <Type>[Videos])
+@DriftAccessor(tables: <Type>[Videos])
 class VideosDao extends DatabaseAccessor<CachedVideoDatabase>
     with _$VideosDaoMixin {
   VideosDao(CachedVideoDatabase db) : super(db);
 }
 
-@UseMoor(tables: <Type>[Videos])
+@DriftDatabase(tables: <Type>[Videos])
 class CachedVideoDatabase extends _$CachedVideoDatabase {
   CachedVideoDatabase()
       : super(
-          FlutterQueryExecutor.inDatabaseFolder(
+          SqfliteQueryExecutor.inDatabaseFolder(
             path: 'db.sqlite',
             logStatements: kDebugMode,
           ),
